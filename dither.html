@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHD2 DitherJS</title> <!-- Titolo della pagina -->
+    <link rel="stylesheet" type="text/css" href="styles.css"> <!-- Collegamento al file CSS esterno -->
+</head>
+<body>
+<div class="container">
+    <h1>PHD2 DitherJS</h1> <!-- Header visibile -->
+    <label for="phd2IpInput">Indirizzo IP del server PHD2:</label>
+    <input type="text" id="phd2IpInput" placeholder="localhost">
+    <label for="phd2PortInput">Porta del server PHD2:</label>
+    <input type="number" id="phd2PortInput" value="4400">
+    <label for="timeoutInput">Timeout in secondi:</label>
+    <input type="number" id="timeoutInput" value="10">
+    <label for="ditherAmountInput">Amount per il comando Dither:</label>
+    <input type="number" id="ditherAmountInput" value="2">
+    <label for="raOnlyInput">RA Only per il comando Dither:</label>
+    <input type="checkbox" id="raOnlyInput">
+    <button id="getStatusButton">Ottieni Stato della Guida</button>
+    <button id="ditherButton">Invia Comando Dither</button>
+    <button id="startTimerButton">Avvia Timer</button>
+    <button id="stopTimerButton">Ferma Timer</button>
+    <button id="manualDitherButton">Esegui Dither Manuale</button>
+    <p id="timerStatus">Stato del Timer: Inattivo</p>
+    <p id="timerElapsed">Secondi trascorsi del Timer: 0</p>
+    <div id="status"></div>
+    
+    <!-- Footer con l'informazione di creazione -->
+    <footer>
+        Created by Michele Guzzini and ChatGPT
+    </footer>
+</div>
+    <script>
+      // Dichiarazione delle variabili
+		let timerInterval = null;
+		let elapsedSeconds = 0;
+		let timerActive = false;
+		let timerStarted = false;
+
+		// Funzione per aggiornare i secondi trascorsi
+		function updateElapsedSeconds() {
+			elapsedSeconds++;
+			document.getElementById('timerElapsed').innerText = `Secondi trascorsi del Timer: ${elapsedSeconds}`;
+		}
+
+		// Funzione per avviare il timer
+		function startTimer() {
+			if (!timerStarted) {
+				const timeoutSeconds = parseInt(document.getElementById('timeoutInput').value, 10);
+				clearInterval(timerInterval); // Ferma il timer se è già in esecuzione
+				elapsedSeconds = 0; // Resetta i secondi trascorsi
+				document.getElementById('timerElapsed').innerText = `Secondi trascorsi del Timer: ${elapsedSeconds}`;
+
+				timerInterval = setInterval(updateElapsedSeconds, 1000); // Ogni secondo, chiama la funzione di aggiornamento
+				document.getElementById('timerStatus').innerText = 'Stato del Timer: In esecuzione';
+				timerActive = true;
+				timerStarted = true;
+			}
+}
+
+        // Funzione per fermare il timer
+        function stopTimer() {
+            clearInterval(timerInterval);
+            elapsedSeconds = 0; // Resettiamo i secondi trascorsi quando si ferma il timer
+            document.getElementById('timerStatus').innerText = 'Stato del Timer: Inattivo';
+            document.getElementById('timerElapsed').innerText = 'Secondi trascorsi del Timer: 0';
+            timerActive = false;
+        }
+		
+		
+        // Funzione per ottenere lo stato della guida da PHD2 Guiding
+        function getStatus() {
+            const phd2Ip = document.getElementById('phd2IpInput').value.trim();
+            const phd2Port = parseInt(document.getElementById('phd2PortInput').value, 10);
+            const statusDiv = document.getElementById('status');
+
+            // Costruisci l'URL completo
+            const phd2Url = `http://${phd2Ip}:${phd2Port}`;
+
+            // Esegui una richiesta GET all'API di stato
+            fetch(`${phd2Url}/guide/status`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Errore nella richiesta: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Aggiungi il risultato all'elemento HTML
+                    statusDiv.innerText = `Stato della Guida: ${data.State}`;
+                })
+                .catch(error => {
+                    console.error(`Errore nella comunicazione con PHD2: ${error.message}`);
+                    statusDiv.innerText = 'Errore nella comunicazione con PHD2';
+                });
+        }
+
+        // Funzione per inviare il comando "dither" a PHD2 Guiding
+        function sendDitherCommand() {
+            const phd2Ip = document.getElementById('phd2IpInput').value.trim();
+            const phd2Port = parseInt(document.getElementById('phd2PortInput').value, 10);
+            const ditherAmount = parseFloat(document.getElementById('ditherAmountInput').value);
+            const raOnly = document.getElementById('raOnlyInput').checked;
+
+            // Costruisci l'URL completo
+            const phd2Url = `http://${phd2Ip}:${phd2Port}`;
+
+            // Costruisci l'oggetto con i parametri per il comando "dither"
+            const ditherParams = {
+                command: 'dither',
+                amount: ditherAmount,
+                raOnly: raOnly,
+            };
+
+            // Esegui una richiesta POST con i parametri del comando "dither"
+            fetch(`${phd2Url}/dither`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(ditherParams),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Errore nell'invio del comando dither: ${response.status}`);
+                }
+                console.log('Comando dither inviato con successo.');
+            })
+            .catch(error => {
+                console.error(`Errore nell'invio del comando dither: ${error.message}`);
+            });
+        }
+
+        // Gestisci il clic sul pulsante "Invia Comando Dither"
+        document.getElementById('ditherButton').addEventListener('click', function () {
+            sendDitherCommand();
+        });
+
+        // Gestisci il clic sul pulsante "Avvia Timer"
+        document.getElementById('startTimerButton').addEventListener('click', function () {
+            startTimer();
+        });
+
+        // Gestisci il clic sul pulsante "Ferma Timer"
+        document.getElementById('stopTimerButton').addEventListener('click', function () {
+            stopTimer();
+        });
+
+        // Gestisci il clic sul pulsante "Ottieni Stato della Guida"
+        document.getElementById('getStatusButton').addEventListener('click', function () {
+            getStatus();
+        });
+
+        // Inizializza il timer
+        // startTimer();
+    </script>
+</body>
+</html>

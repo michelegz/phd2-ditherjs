@@ -1,0 +1,84 @@
+body {
+    background-color: #1f1f1f; /* Colore di sfondo scuro */
+    color: #ffffff; /* Testo bianco */
+    font-family: Arial, sans-serif;
+	 
+}
+
+h1 {
+    color: #ff3333; /* Titolo rosso */
+}
+
+label {
+    color: #ffffff; /* Etichette bianche */
+}
+
+input[type="text"],
+input[type="number"],
+button,
+checkbox {
+    background-color: #2d2d2d; /* Sfondo dei campi input e pulsanti scuro */
+    color: #ffffff; /* Testo bianco */
+    border: 1px solid #ff3333; /* Bordo rosso per campi input e pulsanti */
+}
+
+button {
+    padding: 5px 15px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #ff3333; /* Sfondo rosso quando il pulsante è in hover */
+}
+
+#status {
+    margin-top: 10px;
+}
+
+footer {
+    background-color: #1f1f1f; /* Sfondo scuro per il footer */
+    color: #ffffff; /* Testo bianco */
+    text-align: center;
+    padding: 10px 0;
+}
+
+#timerStatus,
+#timerElapsed {
+    color: #ff3333; /* Testo rosso per lo stato del timer e i secondi trascorsi */
+}
+
+/* Stile generale per tutti gli elementi */
+body, button, input, label, p {
+    font-size: 16px;
+    margin: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Imposta la disposizione "a colonna" per tutti gli elementi */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: #1f1f1f; /* Colore di sfondo scuro */
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 10px; /* Aggiungi un margine di 10px su tutti i lati del contenitore */
+}
+
+
+/* Footer */
+footer {
+    margin-top: 20px;
+    text-align: center;
+    color: #888;
+}
